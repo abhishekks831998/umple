@@ -171,25 +171,31 @@ subprojects{
     evaluationDependsOn(":${project.name}")
 
     // Clean up task
-    task cleanUp << {
-        delete project.ext.umpleOutputDir
+    task cleanUp {
+        doLast {
+            delete project.ext.umpleOutputDir
+        }
     }
 
     def masterFile = "${projectDir.toString()}/${project.ext.masterFile}"
 
     // Compile task using remote jar
-    task compileUmple << {
-        runUmpleJar(rootProject.ext.umpleJarRemoteFile, masterFile)
+    task compileUmple {
+        doLast {
+            runUmpleJar(rootProject.ext.umpleJarRemoteFile, masterFile)
+        }
     }
     compileUmple.dependsOn(":downloadUmpleJar")
 
     // Compile task using local jar, or fallback to remote
-    task compileUmpleSelf << {
-        if (new File(rootProject.ext.umpleCurrentJar).exists()) {
-            runUmpleJar(rootProject.ext.umpleCurrentJar, masterFile)
-        } else {
-            // Still default to using the stable downloaded jar
-            runUmpleJar(rootProject.ext.umpleJarRemoteFile, masterFile)
+    task compileUmpleSelf {
+        doLast {
+            if (new File(rootProject.ext.umpleCurrentJar).exists()) {
+                runUmpleJar(rootProject.ext.umpleCurrentJar, masterFile)
+            } else {
+                // Still default to using the stable downloaded jar
+                runUmpleJar(rootProject.ext.umpleJarRemoteFile, masterFile)
+            }
         }
     }
     compileUmpleSelf.dependsOn(":downloadUmpleJar")
@@ -251,37 +257,49 @@ tasks.getByName("test").dependsOn copyUmpleOnlineTestFiles
 
 
 // Updates the latest version file
-task updateLatestVersion << {
-    if (new File(rootProject.ext.umpleCurrentJar).exists()) {
-        rootProject.ext.umpleLastVersionFile.text = "version :   ${rootProject.ext.umpleCurrentVersion}"
-        rootProject.ext.umpleLastVersion = rootProject.ext.umpleCurrentVersion
-    } else {
-        throw new Exception("Could not find jar file ${rootProject.ext.umpleCurrentJar} when setting version")
+task updateLatestVersion {
+    doLast {
+        if (new File(rootProject.ext.umpleCurrentJar).exists()) {
+            rootProject.ext.umpleLastVersionFile.text = "version :   ${rootProject.ext.umpleCurrentVersion}"
+            rootProject.ext.umpleLastVersion = rootProject.ext.umpleCurrentVersion
+        } else {
+            throw new Exception("Could not find jar file ${rootProject.ext.umpleCurrentJar} when setting version")
+        }
     }
 }
 
 // Clean up task
-task cleanUp << {
-    delete "${rootProject.projectDir.toString()}/dist/gradle"
+task cleanUp {
+    doLast {
+        delete "${rootProject.projectDir.toString()}/dist/gradle"
+    }
 }
 
 // Delete the tests dir
-task cleanUpTests << {
-    delete rootProject.ext.testBaseDir
+task cleanUpTests {
+    doLast {
+        delete rootProject.ext.testBaseDir
+    }
 }
 
 // Delete only cruise umple components
-task cleanUpUmple << {
-    delete "${rootProject.projectDir.toString()}/dist/gradle/src-gen/cruise.umple"
+task cleanUpUmple {
+    doLast {
+        delete "${rootProject.projectDir.toString()}/dist/gradle/src-gen/cruise.umple"
+    }
 }
 
-task cleanUpArtifacts << {
-    delete "${rootProject.projectDir.toString()}/dist/gradle/libs"
+task cleanUpArtifacts {
+    doLast {
+        delete "${rootProject.projectDir.toString()}/dist/gradle/libs"
+    }
 }
 
-task cleanUpDeployment << {
-    delete "${rootProject.projectDir.toString()}/umple*.jar"
-    delete "/h/ralph/sites/www/html/umpleonline/scripts/umple*.jar"
+task cleanUpDeployment {
+    doLast {
+        delete "${rootProject.projectDir.toString()}/umple*.jar"
+        delete "/h/ralph/sites/www/html/umpleonline/scripts/umple*.jar"
+    }
 }
 
 // ============================
@@ -483,23 +501,29 @@ task qaLandingPage(type: Copy) {
 }
 
 // Builds the sandbox project
-task buildSandbox << {
-    delete "${rootProject.projectDir.toString()}/sandbox/bin"
-    delete "${rootProject.projectDir.toString()}/dist/sandbox"
+task buildSandbox {
+    doLast {
+        delete "${rootProject.projectDir.toString()}/sandbox/bin"
+        delete "${rootProject.projectDir.toString()}/dist/sandbox"
+    }
 }
 task('sandbox:compileJava').mustRunAfter 'buildSandbox'
 
 // Update files to show generated version
-task setVersion << {
-    ant.replaceregexp(match:'@UMPLE_VERSION@', replace: rootProject.ext.umpleCurrentVersion, flags:'g', byline:true) {
-        fileset(dir: "${rootProject.projectDir.toString()}/dist/gradle", includes: '**/*.java')
+task setVersion {
+    doLast {
+        ant.replaceregexp(match:'@UMPLE_VERSION@', replace: rootProject.ext.umpleCurrentVersion, flags:'g', byline:true) {
+            fileset(dir: "${rootProject.projectDir.toString()}/dist/gradle", includes: '**/*.java')
+        }
     }
 }
 
 // Revert generated version
-task resetVersion << {
-    ant.replaceregexp(match:rootProject.ext.umpleCurrentVersion, replace: '@UMPLE_VERSION@', flags:'g', byline:true) {
-        fileset(dir: "${rootProject.projectDir.toString()}/dist/gradle", includes: '**/*.java')
+task resetVersion {
+    doLast {
+        ant.replaceregexp(match:rootProject.ext.umpleCurrentVersion, replace: '@UMPLE_VERSION@', flags:'g', byline:true) {
+            fileset(dir: "${rootProject.projectDir.toString()}/dist/gradle", includes: '**/*.java')
+        }
     }
 }
 
@@ -556,10 +580,12 @@ task umpleParser {
     dependsOn ":UmpleParser:compileUmple"
 }
 
-task compileXUnitTemplates << {
-    runUmpleJar(rootProject.ext.umpleCurrentJar, "${rootProject.projectDir.toString()}/UmpleTToJunit/UmpleTLTemplates/Master.ump")
-    runUmpleJar(rootProject.ext.umpleCurrentJar, "${rootProject.projectDir.toString()}/UmpleTToPhpUnit/UmpleTLTemplates/Master.ump")
-    runUmpleJar(rootProject.ext.umpleCurrentJar, "${rootProject.projectDir.toString()}/UmpleTToRubyUnit/UmpleTLTemplates/Master.ump")
+task compileXUnitTemplates {
+    doLast {
+        runUmpleJar(rootProject.ext.umpleCurrentJar, "${rootProject.projectDir.toString()}/UmpleTToJunit/UmpleTLTemplates/Master.ump")
+        runUmpleJar(rootProject.ext.umpleCurrentJar, "${rootProject.projectDir.toString()}/UmpleTToPhpUnit/UmpleTLTemplates/Master.ump")
+        runUmpleJar(rootProject.ext.umpleCurrentJar, "${rootProject.projectDir.toString()}/UmpleTToRubyUnit/UmpleTLTemplates/Master.ump")
+    }
 }
 
 task copyXUnitJavaGenerator (type: Copy) {
@@ -659,13 +685,15 @@ task buildTestUnitGeneratorAndParser {
     dependsOn testXUnitTemplateTest
 }
 
-task javaTestbedCompileUmple << {
-    runUmpleJar(rootProject.ext.umpleCurrentJar, "${rootProject.projectDir.toString()}/testbed/src/TestHarness.ump")
-    def testTree = fileTree(
-        dir: "${rootProject.projectDir.toString()}/testbed/src/runtime",
-        include: "*.ump")
-    testTree.each { f ->
-        runUmpleJar(rootProject.ext.umpleCurrentJar, f)
+task javaTestbedCompileUmple {
+    doLast {
+        runUmpleJar(rootProject.ext.umpleCurrentJar, "${rootProject.projectDir.toString()}/testbed/src/TestHarness.ump")
+        def testTree = fileTree(
+            dir: "${rootProject.projectDir.toString()}/testbed/src/runtime",
+            include: "*.ump")
+        testTree.each { f ->
+            runUmpleJar(rootProject.ext.umpleCurrentJar, f)
+        }
     }
 }
 
@@ -691,8 +719,10 @@ task javaTestbedTest(type: Test) {
     dependsOn javaTestbedCompile
 }
 
-task phpTestbedCompileUmple << {
-    runUmpleJar(rootProject.ext.umpleCurrentJar, "${rootProject.projectDir.toString()}/testbed/src/TestHarnessPhp.ump")
+task phpTestbedCompileUmple {
+    doLast {
+        runUmpleJar(rootProject.ext.umpleCurrentJar, "${rootProject.projectDir.toString()}/testbed/src/TestHarnessPhp.ump")
+    }
 }
 
 task phpDownloadSimpleTestZip(type: Download) {
@@ -734,8 +764,10 @@ task phpTestbedTest {
     }
 }
 
-task rubyTestbedCompileUmple << {
-    runUmpleJar(rootProject.ext.umpleCurrentJar, "${rootProject.projectDir.toString()}/testbed/src/TestHarnessRuby.ump")
+task rubyTestbedCompileUmple {
+    doLast {
+        runUmpleJar(rootProject.ext.umpleCurrentJar, "${rootProject.projectDir.toString()}/testbed/src/TestHarnessRuby.ump")
+    }
 }
 
 task rubyTestbedCompile {
@@ -792,8 +824,10 @@ def runUserManualAndExampleTests(language, languageOpt, excludes) {
     }
 }
 
-task setupJavaUserManualAndExampleTests << {
-    setupUserManualAndExampleTests("java");
+task setupJavaUserManualAndExampleTests {
+    doLast {
+        setupUserManualAndExampleTests("java");
+    }
 }
 
 task javaUserManualAndExampleTests {
@@ -816,8 +850,10 @@ task javaUserManualAndExampleTests {
     }
 }
 
-task setupPhpUserManualAndExampleTests << {
-    setupUserManualAndExampleTests("php");
+task setupPhpUserManualAndExampleTests {
+    doLast {
+        setupUserManualAndExampleTests("php");
+    }
 }
 
 task phpUserManualAndExampleTests {
