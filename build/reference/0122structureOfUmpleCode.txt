@@ -100,12 +100,12 @@ which you might need to do to add a feature. Taken together, these
 mechanisms allow for a form of product-line development.</p>
 
 
-p><b>Examples of Mixins</b></p>
+<p><b>Examples of Mixins</b></p>
 
 <p>
 The below example shows ways to incorporate mixins to Umple classes. 
-Follow the links below this video to watch examples of mixins with state machines, 
-aspects and associations. </p>
+Follow the links below this video to watch examples of mixins with 
+state machines, aspects and associations. </p>
 
 @@video https://www.youtube.com/embed/bGKAJpFojSE
 
